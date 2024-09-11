@@ -28,7 +28,7 @@ jobs:
 
       - name: Test SFTP connection
         run: |
-          sftp -o StrictHostKeyChecking=no -P 2222 testuser@localhost << EOF
+          sftp -o StrictHostKeyChecking=no -P 2222 testuse:passwordr@localhost << EOF
             pwd
             ls -la
             exit
@@ -36,7 +36,7 @@ jobs:
 
       - name: Transfer files via SFTP
         run: |
-          sftp -o StrictHostKeyChecking=no -P 2222 testuser@localhost << EOF
+          sftp -o StrictHostKeyChecking=no -P 2222 testuser:password@localhost << EOF
             cd /upload
             put -r ./files_to_upload/*
             bye
