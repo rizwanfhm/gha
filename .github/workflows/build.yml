@@ -1,0 +1,46 @@
+name: SFTP File Upload
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sftp-upload:
+    runs-on: ubuntu-latest
+
+    services:
+      sftp:
+        image: atmoz/sftp
+        env:
+          SFTP_USERS: "testuser:password:1001"
+        ports:
+          - "2222:22"
+        options:
+          --name sftp-server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare file to upload
+        run: echo "This is a test file" > testfile.txt
+
+      - name: Wait for SFTP to be ready
+        run: |
+          for i in {1..10}; do
+            if nc -z localhost 2222; then
+              echo "SFTP is ready!"
+              break
+            fi
+            echo "Waiting for SFTP to start..."
+            sleep 2
+          done
+
+      - name: Upload file to SFTP
+        run: |
+          sshpass -p 'password' scp -P 2222 -o StrictHostKeyChecking=no testfile.txt testuser@localhost:/upload
+
+      - name: Verify file upload
+        run: |
+          sshpass -p 'password' ssh -p 2222 -o StrictHostKeyChecking=no testuser@localhost 'ls /upload'
